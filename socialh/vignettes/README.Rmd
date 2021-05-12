@@ -1,0 +1,104 @@
+--- 
+title: "Rank and Social Hierarchy for Gregarious Animals"
+author: "Julia P S Valente, Matheus Deniz, Karolini T de Sousa"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Rank and Social Hierarchy for Gregarious Animals}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+##Description
+
+The "socialh" package is a set of functions developed to facilitate the establishment of the rank and social hierarchy for gregarious animals by the Si method developed by Kondo & Hurnik (1990). It is also possible to determine the number of agonistic interactions between two individuals, sociometric and dyadics matrix from dataset obtained through electronic bins.
+
+
+##Function description
+
+Function        | Description
+----------------|------------
+`replacement`   |Identify replacements between actor and reactor from electronic bins data.
+`smatrix `      |Build a square matrix contained dyadic frequency of dominance-related behaviors.
+`dmatrix`       |Determine the Sij dyadic dominance relationship from a sociomatrix.
+`dvalue`        |Determine the dominance value, social rank and hierarchy from Sij dyadic.
+`landau_index`  |Calculate the linearity index developed by Landau (1951).
+`devries_index` |Calculate the linearity index improved by de Vries (1995).
+
+##Application
+
+```
+#First, install and load the socialh R package
+install.packages(socialh)
+library(socialh)
+
+#Load the dataset
+exemple.data <- read.csv(behaviour_data.csv)
+
+# Apply the replacement(x, sec) function to create a data table with actor and reactor and save as an object to use later.
+replace <- replacement (exemple.data, 14)
+head(replace)
+
+#Use the smatrix() function to create sociometrix by a replacemente data table and save as an object to use later. 
+social <- smatrix (replace)
+head(social)
+
+#            actor
+#  reactor   2164251 2164252 2164255 2164259 2164261 2164263 
+#  2164251      0      32      62      17      37      23
+#  2164252     43       0      10      19       8      14
+#  2164255     56      12       0       7      26      16
+#  2164259     15       5      10       0       3      10
+#  2164261     34       9      37       6       0      15
+#  2164263     26      16      16      11       8       0
+
+#Apply the dmatrix()function to transform the sociometrix in a dyadic matrix and save as an object to use later.
+dyadic <- dmatrix (social)
+head(dyadic)
+
+#            actor
+#  reactor   2164251 2164252 2164255 2164259 2164261 2164263 
+#  2164251       0      -1       1       1       1      -1
+#  2164252       1       0      -1       1      -1      -1
+#  2164255      -1       1       0      -1      -1       0
+#  2164259      -1      -1       1       0      -1      -1
+#  2164261      -1       1       1       1       0       1
+#  2164263       1       1       0       1      -1       0
+
+#Employ the dvalue()function to determine dominance value, social rank and social hierarchy by a dyadic matrix.
+dominance <- dvalue (dyadic)
+head(dominance)
+#   dominance_value animal_id social_hierarchy social_rank
+#1:       -46        2164494     subordinate     lower
+#2:       -37        2164490     subordinate     lower
+#3:       -36        2164482     subordinate     lower
+#4:       -30        2164477     subordinate     lower
+#5:       -28        2164265     subordinate     lower
+#6:       -27        2164529     subordinate     lower
+tail(dominance)
+#   dominance_value animal_id social_hierarchy social_rank
+#1:        23        2164285     dominant        high
+#2:        26        2164381     dominant        high
+#3:        27        2164332     dominant        high
+#4:        29        2164308     dominant        high
+#5:        30        2164267     dominant        high
+#6:        35        2164321     dominant        high
+
+#Apply the landau_index()function to determine the linearity index by a dyadic matrix.
+landau <- landau_index (dyadic)
+print(landau)
+#[1] 0.1743385
+
+#Apply the devries_index()function to determine the improved linearity index by a dyadic matrix and a sociomatrix.
+devries <- landau_index (dyadic, social)
+print(devries)
+#[1] 0.1754908
+
+```
